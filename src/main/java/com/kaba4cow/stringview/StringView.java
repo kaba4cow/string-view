@@ -42,6 +42,15 @@ public class StringView {
 	}
 
 	/**
+	 * Returns a new {@link StringView} with the specified string.
+	 *
+	 * @param string the string to wrap
+	 */
+	public static StringView view(String string) {
+		return new StringView(string);
+	}
+
+	/**
 	 * Trims the string by removing leading and trailing spaces.
 	 * 
 	 * @return a new {@link StringView} with the trimmed string
