@@ -5,14 +5,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * <p>
- * The {@code StringView} class provides utility methods for parsing, converting, and manipulating strings in various ways. It
- * is designed to offer a flexible way to transform string data into different types, such as lists, maps, and various primitive
- * types.
+ * Provides utility methods for parsing, converting, and manipulating strings in various ways. It is designed to offer a
+ * flexible way to transform string data into different types, such as lists, maps, and various primitive types.
  * </p>
  * <p>
  * This class allows for easy conversion of strings into collections like lists and maps, supporting different data types,
@@ -20,17 +20,17 @@ import java.util.stream.Collectors;
  * substrings with wrapping indices, providing additional flexibility when working with string ranges.
  * </p>
  * <p>
- * The {@code StringView} class is an essential tool for working with and transforming string data in Java, providing powerful
+ * The {@link StringView} class is an essential tool for working with and transforming string data in Java, providing powerful
  * utilities for working with text in a highly customizable and structured manner.
  * </p>
  * <p>
- * <b>Note</b>: All methods assume the input string is non-null, but null checks should be handled by the user if needed in
- * other parts of the code.
+ * <b>Note</b>: All methods assume the input string is non-{@code null}, but {@code null} checks should be handled by the user
+ * if needed in other parts of the code.
  * </p>
  */
 public class StringView {
 
-	private final String string;
+	protected final String string;
 
 	/**
 	 * Constructs a {@link StringView} with the specified string.
@@ -48,6 +48,21 @@ public class StringView {
 	 */
 	public static StringView view(String string) {
 		return new StringView(string);
+	}
+
+	/**
+	 * Creates a new instance of a {@link StringView} subclass with the specified string.
+	 *
+	 * @param string the string to wrap
+	 * @param view   the function to create a specific {@link StringView} implementation
+	 * @param <T>    the type of {@link StringView} to create
+	 * 
+	 * @return a new instance of the specified {@link StringView} type
+	 * 
+	 * @throws NullPointerException if the view function is {@code null}
+	 */
+	public static <T extends StringView> T view(String string, Function<String, T> view) {
+		return view.apply(string);
 	}
 
 	/**
@@ -196,12 +211,35 @@ public class StringView {
 	}
 
 	/**
+	 * Converts this StringView to another {@link StringView} implementation using the provided function.
+	 *
+	 * @param view the function to convert this {@link StringView} to another implementation
+	 * @param <T>  the type of {@link StringView} to convert to
+	 * 
+	 * @return a new {@link StringView} of the specified type containing the same string
+	 * 
+	 * @throws NullPointerException if the view function is {@code null}
+	 */
+	public <T extends StringView> T asView(Function<String, T> view) {
+		return view.apply(string);
+	}
+
+	/**
 	 * Converts the string to a {@link String}.
 	 *
 	 * @return the original string
 	 */
 	public String asString() {
 		return string;
+	}
+
+	/**
+	 * Converts the string to an {@link Optional}.
+	 * 
+	 * @return a new {@link Optional} containing the string
+	 */
+	public Optional<String> asOptional() {
+		return Optional.ofNullable(string);
 	}
 
 	/**

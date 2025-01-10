@@ -4,10 +4,11 @@
 
 ## Key Features
 
-- Easy conversion of strings to primitive types
-- Support for converting strings to arrays and lists
-- Flexible mapping and transformation of strings
-- Wrapped index handling for substring operations
+- String manipulation methods (trim, case conversion, substring, replace)
+- Primitive type conversions (`boolean`, `byte`, `short`, `int`, `long`, `float`, `double`)
+- Collection conversions (arrays, lists, maps)
+- Support for custom type conversions via mapping functions
+- Extensibility through subclassing
 - Comprehensive error handling
 
 ## Usage
