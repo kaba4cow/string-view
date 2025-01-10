@@ -84,4 +84,11 @@ try {
 - `toUpperCase()`
 - `toLowerCase()`
 - `substring()`
-- `map()`
+- `concat()`
+- `replace()`
+- `replaceFirst()`
+- `replaceAll()`
+
+## Error Handling
+
+- `StringViewException` for conversion errors

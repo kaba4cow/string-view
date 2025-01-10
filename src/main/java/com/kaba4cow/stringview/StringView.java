@@ -107,6 +107,66 @@ public class StringView {
 	}
 
 	/**
+	 * Concatenates the specified string to the end of this string.
+	 *
+	 * @param str the string to concatenate
+	 * 
+	 * @return a new {@link StringView} containing the concatenated string
+	 */
+	public StringView concat(String str) {
+		return new StringView(string.concat(str));
+	}
+
+	/**
+	 * Returns a new {@link StringView} resulting from replacing all occurrences of oldChar in this string with newChar.
+	 *
+	 * @param oldChar the character to be replaced
+	 * @param newChar the character to replace with
+	 * 
+	 * @return a new {@link StringView} with all occurrences of oldChar replaced with newChar
+	 */
+	public StringView replace(char oldChar, char newChar) {
+		return new StringView(string.replace(oldChar, newChar));
+	}
+
+	/**
+	 * Replaces the first substring of this string that matches the given regular expression with the given replacement.
+	 *
+	 * @param regex       the regular expression to which this string is to be matched
+	 * @param replacement the string to be substituted for the first match
+	 * 
+	 * @return a new {@link StringView} with the first match replaced
+	 */
+	public StringView replaceFirst(String regex, String replacement) {
+		return new StringView(string.replaceFirst(regex, replacement));
+	}
+
+	/**
+	 * Replaces each substring of this string that matches the given regular expression with the given replacement.
+	 *
+	 * @param regex       the regular expression to which this string is to be matched
+	 * @param replacement the string to be substituted for each match
+	 * 
+	 * @return a new {@link StringView} with all matches replaced
+	 */
+	public StringView replaceAll(String regex, String replacement) {
+		return new StringView(string.replaceAll(regex, replacement));
+	}
+
+	/**
+	 * Replaces each substring of this string that matches the literal target sequence with the specified literal replacement
+	 * sequence.
+	 *
+	 * @param target      the sequence of characters to be replaced
+	 * @param replacement the replacement sequence of characters
+	 * 
+	 * @return a new {@link StringView} with all matches replaced
+	 */
+	public StringView replace(CharSequence target, CharSequence replacement) {
+		return new StringView(string.replace(target, replacement));
+	}
+
+	/**
 	 * Maps the string using the provided function.
 	 *
 	 * @param mapper the function to apply to the string
