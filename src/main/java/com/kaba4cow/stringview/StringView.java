@@ -1,5 +1,11 @@
 package com.kaba4cow.stringview;
 
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -7,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -16,16 +23,17 @@ import java.util.stream.Collectors;
  * </p>
  * <p>
  * This class allows for easy conversion of strings into collections like lists and maps, supporting different data types,
- * including {@link Integer}, {@link Boolean}, {@link Double}, {@link String}, and many more. It also supports extracting
- * substrings with wrapping indices, providing additional flexibility when working with string ranges.
+ * including {@link Integer}, {@link Boolean}, {@link Double}, {@link String}, and many more.
  * </p>
  * <p>
  * The {@link StringView} class is an essential tool for working with and transforming string data in Java, providing powerful
  * utilities for working with text in a highly customizable and structured manner.
  * </p>
  * <p>
- * <b>Note</b>: All methods assume the input string is non-{@code null}, but {@code null} checks should be handled by the user
- * if needed in other parts of the code.
+ * <b>Note:</b> All methods in this class assume the input string is non-{@code null}. If {@code null} is passed to any method,
+ * a {@link NullPointerException} will be thrown unless explicitly handled by the user. In cases where {@code null} is
+ * acceptable, either use {@link #asOptional()} or {@link #orElse(CharSequence)} and {@link #orElseGet(Supplier)} methods, or
+ * handle {@code null} in your implementation to ensure proper behavior.
  * </p>
  */
 public class StringView {
@@ -37,8 +45,8 @@ public class StringView {
 	 *
 	 * @param string the string to wrap
 	 */
-	public StringView(String string) {
-		this.string = string;
+	protected StringView(CharSequence string) {
+		this.string = Objects.toString(string);
 	}
 
 	/**
@@ -46,7 +54,7 @@ public class StringView {
 	 *
 	 * @param string the string to wrap
 	 */
-	public static StringView view(String string) {
+	public static StringView view(CharSequence string) {
 		return new StringView(string);
 	}
 
@@ -61,7 +69,7 @@ public class StringView {
 	 * 
 	 * @throws NullPointerException if the view function is {@code null}
 	 */
-	public static <T extends StringView> T view(String string, Function<String, T> view) {
+	public static <T extends StringView> T view(CharSequence string, Function<CharSequence, T> view) {
 		return view.apply(string);
 	}
 
@@ -71,7 +79,7 @@ public class StringView {
 	 * @return a new {@link StringView} with the trimmed string
 	 */
 	public StringView trim() {
-		return new StringView(string.trim());
+		return view(string.trim());
 	}
 
 	/**
@@ -80,7 +88,7 @@ public class StringView {
 	 * @return a new {@link StringView} with the string in uppercase
 	 */
 	public StringView toUpperCase() {
-		return new StringView(string.toUpperCase());
+		return view(string.toUpperCase());
 	}
 
 	/**
@@ -89,25 +97,22 @@ public class StringView {
 	 * @return a new {@link StringView} with the string in lowercase
 	 */
 	public StringView toLowerCase() {
-		return new StringView(string.toLowerCase());
+		return view(string.toLowerCase());
 	}
 
 	/**
-	 * Returns a substring starting from the specified index. The index is adjusted to handle wrapping around the string.
+	 * Returns a substring starting from the specified index.
 	 * 
 	 * @param beginIndex the index to start the substring
 	 * 
 	 * @return a new {@link StringView} containing the substring
 	 */
 	public StringView substring(int beginIndex) {
-		int length = string.length();
-		beginIndex = (beginIndex % length + length) % length;
-		return new StringView(string.substring(beginIndex));
+		return view(string.substring(beginIndex));
 	}
 
 	/**
-	 * Returns a substring starting from the specified begin index to the specified end index. Both indices are adjusted to
-	 * handle wrapping around the string.
+	 * Returns a substring starting from the specified begin index to the specified end index.
 	 * 
 	 * @param beginIndex the index to start the substring
 	 * @param endIndex   the index to end the substring
@@ -115,25 +120,23 @@ public class StringView {
 	 * @return a new {@link StringView} containing the substring
 	 */
 	public StringView substring(int beginIndex, int endIndex) {
-		int length = string.length();
-		beginIndex = (beginIndex % length + length) % length;
-		endIndex = (endIndex % length + length) % length;
-		return new StringView(string.substring(beginIndex, endIndex));
+		return view(string.substring(beginIndex, endIndex));
 	}
 
 	/**
-	 * Concatenates the specified string to the end of this string.
+	 * Concatenates the specified string to the end of this {@link StringView} string.
 	 *
 	 * @param str the string to concatenate
 	 * 
 	 * @return a new {@link StringView} containing the concatenated string
 	 */
 	public StringView concat(String str) {
-		return new StringView(string.concat(str));
+		return view(string.concat(str));
 	}
 
 	/**
-	 * Returns a new {@link StringView} resulting from replacing all occurrences of oldChar in this string with newChar.
+	 * Returns a new {@link StringView} resulting from replacing all occurrences of oldChar in this {@link StringView} string
+	 * with newChar.
 	 *
 	 * @param oldChar the character to be replaced
 	 * @param newChar the character to replace with
@@ -141,36 +144,38 @@ public class StringView {
 	 * @return a new {@link StringView} with all occurrences of oldChar replaced with newChar
 	 */
 	public StringView replace(char oldChar, char newChar) {
-		return new StringView(string.replace(oldChar, newChar));
+		return view(string.replace(oldChar, newChar));
 	}
 
 	/**
-	 * Replaces the first substring of this string that matches the given regular expression with the given replacement.
+	 * Replaces the first substring of this {@link StringView} string that matches the given regular expression with the given
+	 * replacement.
 	 *
-	 * @param regex       the regular expression to which this string is to be matched
+	 * @param regex       the regular expression to which this {@link StringView} string is to be matched
 	 * @param replacement the string to be substituted for the first match
 	 * 
 	 * @return a new {@link StringView} with the first match replaced
 	 */
 	public StringView replaceFirst(String regex, String replacement) {
-		return new StringView(string.replaceFirst(regex, replacement));
+		return view(string.replaceFirst(regex, replacement));
 	}
 
 	/**
-	 * Replaces each substring of this string that matches the given regular expression with the given replacement.
+	 * Replaces each substring of this {@link StringView} string that matches the given regular expression with the given
+	 * replacement.
 	 *
-	 * @param regex       the regular expression to which this string is to be matched
+	 * @param regex       the regular expression to which this {@link StringView} string is to be matched
 	 * @param replacement the string to be substituted for each match
 	 * 
 	 * @return a new {@link StringView} with all matches replaced
 	 */
 	public StringView replaceAll(String regex, String replacement) {
-		return new StringView(string.replaceAll(regex, replacement));
+		return view(string.replaceAll(regex, replacement));
 	}
 
 	/**
-	 * Replaces each substring of this string that matches the literal target sequence with the specified literal replacement
-	 * sequence.
+	 * Replaces each substring of this {@link StringView} string that matches the literal target sequence with the specified
+	 * literal replacement sequence.
 	 *
 	 * @param target      the sequence of characters to be replaced
 	 * @param replacement the replacement sequence of characters
@@ -178,7 +183,51 @@ public class StringView {
 	 * @return a new {@link StringView} with all matches replaced
 	 */
 	public StringView replace(CharSequence target, CharSequence replacement) {
-		return new StringView(string.replace(target, replacement));
+		return view(string.replace(target, replacement));
+	}
+
+	/**
+	 * Capitalizes this {@link StringView} string.
+	 * 
+	 * @return a new {@link StringView} with capitalized string
+	 */
+	public StringView capitalize() {
+		return view(string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase());
+	}
+
+	/**
+	 * Reverses this {@link StringView} string.
+	 * 
+	 * @return a new {@link StringView} with reversed string
+	 */
+	public StringView reverse() {
+		return view(new StringBuilder(string).reverse().toString());
+	}
+
+	/**
+	 * Returns the current {@link StringView} if the internal string is not {@code null}, or a new {@link StringView} with the
+	 * provided alternative value.
+	 * 
+	 * @param value the default string value which will be used if the current string is {@code null}
+	 * 
+	 * @return current {@link StringView} if string is not {@code null}, or a new {@link StringView} with the provided value
+	 */
+	public StringView orElse(CharSequence value) {
+		return Objects.isNull(string) ? view(value) : this;
+	}
+
+	/**
+	 * Returns the current {@link StringView} if the internal string is not {@code null}, or a new {@link StringView} with an
+	 * alternative value from the supplier.
+	 * 
+	 * @param value a supplier that provides a fallback string value which will be used if the current string is {@code null}
+	 * 
+	 * @return current {@link StringView} if string is not {@code null}, or a new {@link StringView} with the supplier's result
+	 * 
+	 * @throws NullPointerException if the value supplier is {@code null}
+	 */
+	public StringView orElseGet(Supplier<? extends CharSequence> value) {
+		return Objects.isNull(string) ? view(value.get()) : this;
 	}
 
 	/**
@@ -188,8 +237,8 @@ public class StringView {
 	 * 
 	 * @return a reference to this object with the mapped string
 	 */
-	public StringView map(Function<String, String> mapper) {
-		return new StringView(mapper.apply(string));
+	public StringView map(Function<String, ? extends CharSequence> mapper) {
+		return view(mapper.apply(string));
 	}
 
 	/**
@@ -204,10 +253,20 @@ public class StringView {
 	 */
 	public <T> T as(Function<String, T> function) {
 		try {
-			return Objects.requireNonNull(function, "Function must not be null").apply(string);
+			return function.apply(string);
 		} catch (Exception exception) {
 			throw new StringViewException("object", exception);
 		}
+	}
+
+	/**
+	 * Wraps the current string in an {@link Optional} if it's not {@code null}, otherwise returns an empty {@link Optional}.
+	 *
+	 * @return an {@link Optional} containing this {@link StringView} if the underlying string is not {@code null}, otherwise
+	 *             empty
+	 */
+	public Optional<StringView> asOptional() {
+		return Objects.isNull(string) ? Optional.empty() : Optional.of(this);
 	}
 
 	/**
@@ -231,15 +290,6 @@ public class StringView {
 	 */
 	public String asString() {
 		return string;
-	}
-
-	/**
-	 * Converts the string to an {@link Optional}.
-	 * 
-	 * @return a new {@link Optional} containing the string
-	 */
-	public Optional<String> asOptional() {
-		return Optional.ofNullable(string);
 	}
 
 	/**
@@ -502,6 +552,156 @@ public class StringView {
 			return result;
 		} catch (NumberFormatException exception) {
 			throw new StringViewException("double array", exception);
+		}
+	}
+
+	/**
+	 * Converts the string to a {@link ByteBuffer} using the specified delimiter.
+	 *
+	 * @param delimiter the delimiter to split the string
+	 * @param direct    if {@code true}, creates a direct buffer; otherwise, a heap buffer
+	 * 
+	 * @return a {@link ByteBuffer} containing the parsed byte values
+	 * 
+	 * @throws StringViewException if the conversion fails
+	 */
+	public ByteBuffer asByteBuffer(String delimiter, boolean direct) {
+		try {
+			String[] parts = string.split(delimiter);
+			ByteBuffer buffer = direct //
+					? ByteBuffer.allocateDirect(parts.length * Byte.BYTES) //
+					: ByteBuffer.allocate(parts.length);
+			for (String part : parts)
+				buffer.put(Byte.parseByte(part));
+			buffer.flip();
+			return buffer;
+		} catch (NumberFormatException exception) {
+			throw new StringViewException("byte buffer", exception);
+		}
+	}
+
+	/**
+	 * Converts the string to a {@link ShortBuffer} using the specified delimiter.
+	 *
+	 * @param delimiter the delimiter to split the string
+	 * @param direct    if {@code true}, creates a direct buffer; otherwise, a heap buffer
+	 * 
+	 * @return a {@link ShortBuffer} containing the parsed byte values
+	 * 
+	 * @throws StringViewException if the conversion fails
+	 */
+	public ShortBuffer asShortBuffer(String delimiter, boolean direct) {
+		try {
+			String[] parts = string.split(delimiter);
+			ShortBuffer buffer = direct //
+					? ByteBuffer.allocateDirect(parts.length * Short.BYTES).asShortBuffer() //
+					: ShortBuffer.allocate(parts.length);
+			for (String part : parts)
+				buffer.put(Short.parseShort(part));
+			buffer.flip();
+			return buffer;
+		} catch (NumberFormatException exception) {
+			throw new StringViewException("short buffer", exception);
+		}
+	}
+
+	/**
+	 * Converts the string to a {@link IntBuffer} using the specified delimiter.
+	 *
+	 * @param delimiter the delimiter to split the string
+	 * @param direct    if {@code true}, creates a direct buffer; otherwise, a heap buffer
+	 * 
+	 * @return a {@link IntBuffer} containing the parsed byte values
+	 * 
+	 * @throws StringViewException if the conversion fails
+	 */
+	public IntBuffer asIntBuffer(String delimiter, boolean direct) {
+		try {
+			String[] parts = string.split(delimiter);
+			IntBuffer buffer = direct //
+					? ByteBuffer.allocateDirect(parts.length * Integer.BYTES).asIntBuffer() //
+					: IntBuffer.allocate(parts.length);
+			for (String part : parts)
+				buffer.put(Integer.parseInt(part));
+			buffer.flip();
+			return buffer;
+		} catch (NumberFormatException exception) {
+			throw new StringViewException("int buffer", exception);
+		}
+	}
+
+	/**
+	 * Converts the string to a {@link LongBuffer} using the specified delimiter.
+	 *
+	 * @param delimiter the delimiter to split the string
+	 * @param direct    if {@code true}, creates a direct buffer; otherwise, a heap buffer
+	 * 
+	 * @return a {@link LongBuffer} containing the parsed byte values
+	 * 
+	 * @throws StringViewException if the conversion fails
+	 */
+	public LongBuffer asLongBuffer(String delimiter, boolean direct) {
+		try {
+			String[] parts = string.split(delimiter);
+			LongBuffer buffer = direct //
+					? ByteBuffer.allocateDirect(parts.length * Long.BYTES).asLongBuffer() //
+					: LongBuffer.allocate(parts.length);
+			for (String part : parts)
+				buffer.put(Long.parseLong(part));
+			buffer.flip();
+			return buffer;
+		} catch (NumberFormatException exception) {
+			throw new StringViewException("long buffer", exception);
+		}
+	}
+
+	/**
+	 * Converts the string to a {@link FloatBuffer} using the specified delimiter.
+	 *
+	 * @param delimiter the delimiter to split the string
+	 * @param direct    if {@code true}, creates a direct buffer; otherwise, a heap buffer
+	 * 
+	 * @return a {@link FloatBuffer} containing the parsed byte values
+	 * 
+	 * @throws StringViewException if the conversion fails
+	 */
+	public FloatBuffer asFloatBuffer(String delimiter, boolean direct) {
+		try {
+			String[] parts = string.split(delimiter);
+			FloatBuffer buffer = direct //
+					? ByteBuffer.allocateDirect(parts.length * Float.BYTES).asFloatBuffer() //
+					: FloatBuffer.allocate(parts.length);
+			for (String part : parts)
+				buffer.put(Float.parseFloat(part));
+			buffer.flip();
+			return buffer;
+		} catch (NumberFormatException exception) {
+			throw new StringViewException("float buffer", exception);
+		}
+	}
+
+	/**
+	 * Converts the string to a {@link DoubleBuffer} using the specified delimiter.
+	 *
+	 * @param delimiter the delimiter to split the string
+	 * @param direct    if {@code true}, creates a direct buffer; otherwise, a heap buffer
+	 * 
+	 * @return a {@link DoubleBuffer} containing the parsed byte values
+	 * 
+	 * @throws StringViewException if the conversion fails
+	 */
+	public DoubleBuffer asDoubleBuffer(String delimiter, boolean direct) {
+		try {
+			String[] parts = string.split(delimiter);
+			DoubleBuffer buffer = direct //
+					? ByteBuffer.allocateDirect(parts.length * Double.BYTES).asDoubleBuffer() //
+					: DoubleBuffer.allocate(parts.length);
+			for (String part : parts)
+				buffer.put(Double.parseDouble(part));
+			buffer.flip();
+			return buffer;
+		} catch (NumberFormatException exception) {
+			throw new StringViewException("double buffer", exception);
 		}
 	}
 
