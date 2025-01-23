@@ -35,7 +35,7 @@ public class StringView {
 	 * @param string the string to wrap
 	 */
 	public StringView(CharSequence string) {
-		this.string = Objects.toString(string);
+		this.string = Objects.isNull(string) ? null : string.toString();
 	}
 
 	/**
