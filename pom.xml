@@ -4,10 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.kaba4cow</groupId>
 	<artifactId>string-view</artifactId>
-	<version>1.2.0</version>
+	<version>2.0.0</version>
 	<name>String View</name>
-	<description>A utility library for flexible string manipulation in Java, offering methods to convert strings into various
-		types</description>
+	<description>A string view library for Java</description>
 	<packaging>jar</packaging>
 	<properties>
 		<maven.compiler.source>8</maven.compiler.source>
