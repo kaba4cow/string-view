@@ -12,10 +12,10 @@ public class MapStringView extends StringView {
 	/**
 	 * Constructs a {@link MapStringView} with the specified string.
 	 *
-	 * @param string the string to wrap
+	 * @param value the string to wrap
 	 */
-	public MapStringView(CharSequence string) {
-		super(string);
+	public MapStringView(Object value) {
+		super(value);
 	}
 
 	/**

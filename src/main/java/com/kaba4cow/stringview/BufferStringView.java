@@ -19,8 +19,8 @@ public class BufferStringView extends StringView {
 	 *
 	 * @param string the string to wrap
 	 */
-	public BufferStringView(CharSequence string) {
-		super(string);
+	public BufferStringView(Object value) {
+		super(value);
 	}
 
 	/**

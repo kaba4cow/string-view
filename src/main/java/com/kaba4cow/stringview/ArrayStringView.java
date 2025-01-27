@@ -18,8 +18,8 @@ public class ArrayStringView extends StringView {
 	 *
 	 * @param string the string to wrap
 	 */
-	public ArrayStringView(CharSequence string) {
-		super(string);
+	public ArrayStringView(Object value) {
+		super(value);
 	}
 
 	/**

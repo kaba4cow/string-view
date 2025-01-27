@@ -16,8 +16,8 @@ public class CollectionStringView extends StringView {
 	 *
 	 * @param string the string to wrap
 	 */
-	public CollectionStringView(CharSequence string) {
-		super(string);
+	public CollectionStringView(Object value) {
+		super(value);
 	}
 
 	/**

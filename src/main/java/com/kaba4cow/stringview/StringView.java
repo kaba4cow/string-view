@@ -32,10 +32,10 @@ public class StringView implements Comparable<StringView>, CharSequence {
 	/**
 	 * Constructs a {@link StringView} with the specified string.
 	 *
-	 * @param string the string to wrap
+	 * @param value the string to wrap
 	 */
-	public StringView(CharSequence string) {
-		this.string = Objects.isNull(string) ? null : string.toString();
+	public StringView(Object value) {
+		this.string = Objects.isNull(value) ? null : value.toString();
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class StringView implements Comparable<StringView>, CharSequence {
 	 * 
 	 * @return current {@link StringView} if string is not {@code null}, or a new {@link StringView} with the provided value
 	 */
-	public StringView orElse(CharSequence value) {
+	public StringView orElse(Object value) {
 		return Objects.isNull(string) ? new StringView(value) : this;
 	}
 
@@ -217,7 +217,7 @@ public class StringView implements Comparable<StringView>, CharSequence {
 	 * 
 	 * @return current {@link StringView} if string is not {@code null}, or a new {@link StringView} with the supplier's result
 	 */
-	public StringView orElseGet(Supplier<? extends CharSequence> value) {
+	public StringView orElseGet(Supplier<? extends Object> value) {
 		return Objects.isNull(string) ? new StringView(value.get()) : this;
 	}
 
@@ -228,7 +228,7 @@ public class StringView implements Comparable<StringView>, CharSequence {
 	 * 
 	 * @return a reference to this object with the mapped string
 	 */
-	public StringView map(Function<String, ? extends CharSequence> mapper) {
+	public StringView map(Function<String, ? extends Object> mapper) {
 		return new StringView(mapper.apply(string));
 	}
 
