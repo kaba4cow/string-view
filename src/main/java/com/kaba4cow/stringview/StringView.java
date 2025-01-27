@@ -106,6 +106,17 @@ public class StringView {
 	}
 
 	/**
+	 * Concatenates the specified string to the beginning of this {@link StringView} string.
+	 *
+	 * @param str the string to concatenate
+	 * 
+	 * @return a new {@link StringView} containing the concatenated string
+	 */
+	public StringView prefix(String str) {
+		return new StringView(str.concat(string));
+	}
+
+	/**
 	 * Concatenates the specified string to the end of this {@link StringView} string.
 	 *
 	 * @param str the string to concatenate
