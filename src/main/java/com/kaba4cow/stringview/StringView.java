@@ -25,7 +25,7 @@ import java.util.function.Supplier;
  * handle {@code null} in your implementation to ensure proper behavior.
  * </p>
  */
-public class StringView {
+public class StringView implements Comparable<StringView>, CharSequence {
 
 	protected final String string;
 
@@ -216,8 +216,6 @@ public class StringView {
 	 * @param value a supplier that provides a fallback string value which will be used if the current string is {@code null}
 	 * 
 	 * @return current {@link StringView} if string is not {@code null}, or a new {@link StringView} with the supplier's result
-	 * 
-	 * @throws NullPointerException if the value supplier is {@code null}
 	 */
 	public StringView orElseGet(Supplier<? extends CharSequence> value) {
 		return Objects.isNull(string) ? new StringView(value.get()) : this;
@@ -251,15 +249,9 @@ public class StringView {
 	 * @param <T>      the type to convert to
 	 * 
 	 * @return the result of applying the function to the string
-	 * 
-	 * @throws StringViewException if the conversion fails
 	 */
-	public <T> T as(Function<String, T> function) {
-		try {
-			return function.apply(string);
-		} catch (Exception exception) {
-			throw new StringViewException("object", exception);
-		}
+	public <T> T asObject(Function<String, T> function) {
+		return function.apply(string);
 	}
 
 	/**
@@ -269,8 +261,6 @@ public class StringView {
 	 * @param <T>  the type of {@link StringView} to convert to
 	 * 
 	 * @return a new {@link StringView} of the specified type containing the same string
-	 * 
-	 * @throws NullPointerException if the view function is {@code null}
 	 */
 	public <T extends StringView> T asView(Function<String, T> view) {
 		return view.apply(string);
@@ -295,12 +285,12 @@ public class StringView {
 	}
 
 	/**
-	 * Converts this {@link StringView} to {@link ListStringView}.
+	 * Converts this {@link StringView} to {@link CollectionStringView}.
 	 *
-	 * @return a new {@link ListStringView} of the specified type containing the same string
+	 * @return a new {@link CollectionStringView} of the specified type containing the same string
 	 */
-	public ListStringView asListView() {
-		return asView(ListStringView::new);
+	public CollectionStringView asCollectionView() {
+		return asView(CollectionStringView::new);
 	}
 
 	/**
@@ -310,6 +300,18 @@ public class StringView {
 	 */
 	public MapStringView asMapView() {
 		return asView(MapStringView::new);
+	}
+
+	/**
+	 * Converts the string to an {@code enum} constant of the specified type.
+	 *
+	 * @param type the class of the {@code enum} type
+	 * @param <T>  the {@code enum} type
+	 * 
+	 * @return the {@code enum} constant of the specified type matching the string
+	 */
+	public <T extends Enum<T>> T asEnum(Class<T> type) {
+		return Enum.valueOf(type, string);
 	}
 
 	/**
@@ -334,90 +336,74 @@ public class StringView {
 	 * Converts the string to a {@code byte}.
 	 *
 	 * @return the byte value of the string
-	 * 
-	 * @throws StringViewException if the conversion fails
 	 */
 	public byte asByte() {
-		try {
-			return Byte.parseByte(string);
-		} catch (NumberFormatException exception) {
-			throw new StringViewException("byte", exception);
-		}
+		return Byte.parseByte(string);
 	}
 
 	/**
 	 * Converts the string to a {@code short}.
 	 *
 	 * @return the short value of the string
-	 * 
-	 * @throws StringViewException if the conversion fails
 	 */
 	public short asShort() {
-		try {
-			return Short.parseShort(string);
-		} catch (NumberFormatException exception) {
-			throw new StringViewException("short", exception);
-		}
+		return Short.parseShort(string);
 	}
 
 	/**
 	 * Converts the string to a {@code int}.
 	 *
 	 * @return the integer value of the string
-	 * 
-	 * @throws StringViewException if the conversion fails
 	 */
 	public int asInt() {
-		try {
-			return Integer.parseInt(string);
-		} catch (NumberFormatException exception) {
-			throw new StringViewException("int", exception);
-		}
+		return Integer.parseInt(string);
 	}
 
 	/**
 	 * Converts the string to a {@code long}.
 	 *
 	 * @return the long value of the string
-	 * 
-	 * @throws StringViewException if the conversion fails
 	 */
 	public long asLong() {
-		try {
-			return Long.parseLong(string);
-		} catch (NumberFormatException exception) {
-			throw new StringViewException("long", exception);
-		}
+		return Long.parseLong(string);
 	}
 
 	/**
 	 * Converts the string to a {@code float}.
 	 *
 	 * @return the float value of the string
-	 * 
-	 * @throws StringViewException if the conversion fails
 	 */
 	public float asFloat() {
-		try {
-			return Float.parseFloat(string);
-		} catch (NumberFormatException exception) {
-			throw new StringViewException("float", exception);
-		}
+		return Float.parseFloat(string);
 	}
 
 	/**
 	 * Converts the string to a {@code double}.
 	 *
 	 * @return the double value of the string
-	 * 
-	 * @throws StringViewException if the conversion fails
 	 */
 	public double asDouble() {
-		try {
-			return Double.parseDouble(string);
-		} catch (NumberFormatException exception) {
-			throw new StringViewException("double", exception);
-		}
+		return Double.parseDouble(string);
+	}
+
+	@Override
+	public int compareTo(StringView other) {
+		return string.compareTo(other.string);
+	}
+
+	@Override
+	public int length() {
+		return string.length();
+	}
+
+	@Override
+	public char charAt(int index) {
+		return string.charAt(index);
+	}
+
+	@Override
+	public CharSequence subSequence(int start, int end) {
+		return string.subSequence(start, end);
 	}
 
 	@Override
@@ -440,22 +426,6 @@ public class StringView {
 	@Override
 	public String toString() {
 		return String.format("StringView [%s]", string);
-	}
-
-	/**
-	 * Thrown to indicate a conversion error occured in {@link StringView}.
-	 */
-	public class StringViewException extends RuntimeException {
-
-		private static final long serialVersionUID = 1L;
-
-		/**
-		 * Constructs a {@link StringViewException} with specified failed conversion target.
-		 */
-		public StringViewException(String target, Throwable cause) {
-			super(String.format("Cannot view string as %s: %s", target, string), cause);
-		}
-
 	}
 
 }

@@ -4,8 +4,8 @@
 
 ## Features
 
-- **Type Conversion**: Convert strings to primitive types (`int`, `double`, `boolean`, etc.) with built-in error handling
-- **Collection Conversions**: Transform strings into arrays, lists, maps, and buffers with customizable delimiters
+- **Type Conversion**: Convert strings to primitive types (`int`, `double`, `boolean`, etc.)
+- **Collection Conversions**: Transform strings into arrays, collections, maps, and buffers with customizable delimiters
 - **String Manipulation**: Perform common string operations (trim, case conversion, substring, etc.) with a fluent API
 - **Buffer Support**: Direct conversion to various **java.nio** buffer types (`ByteBuffer`, `IntBuffer`, etc.)
 - **Extensible Design**: Easy to extend with custom string view implementations
@@ -28,14 +28,14 @@ view.substring(0, 5).asString(); // "Hello"
 int number = new StringView("64").asInt(); // 64
 double decimal = new StringView("3.14159").asDouble(); // 3.14159
 boolean flag = new StringView("TRVE").asBoolean(); // false
+DayOfWeek day = new StringView("TUESDAY").asEnum(DayOfWeek.class); // DayOfWeek.TUESDAY
 ```
 
 ### Custom Type Conversion
 
 ```java
-new StringView("2016-06-28").as(string -> LocalDate.parse(string, DateTimeFormatter.ISO_DATE));
-new StringView("monday").toUpperCase().as(DayOfWeek::valueOf);
-new StringView("https://www.example.com").as(URI::create);
+new StringView("2016-06-28").asObject(string -> LocalDate.parse(string, DateTimeFormatter.ISO_DATE));
+new StringView("https://www.example.com").asObject(URI::create);
 ```
 
 ### Array Conversion
@@ -49,7 +49,7 @@ or
 
 ```java
 ArrayStringView view = new StringView("1 2 3 4 5").asArrayView();
-Integer[] numbers = view.asArray(" ", Integer::parseInt);
+Integer[] numbers = view.asArray(" ", Integer::valueOf);
 ```
 
 Result: `[1, 2, 3, 4, 5]`.
@@ -63,18 +63,18 @@ IntBuffer buffer = view.asIntBuffer(" ", false);
 
 Result: `IntBuffer` containing `[1, 2, 3, 4, 5]`.
 
-### List Conversion
+### Collection Conversion
 
 ```java
-ListStringView view = new StringView("hello,world").asListView();
-List<String> words = view.asStringList(",");
+CollectionStringView view = new StringView("hello,world").asCollectionView();
+List<String> words = view.asStringCollection(",", ArrayList::new);
 ```
 
 or
 
 ```java
-ListStringView view = new StringView("hello,world").asListView();
-List<String> words = view.asList(",", String::toString);
+CollectionStringView view = new StringView("hello,world").asCollectionView();
+Set<String> words = view.asCollection(",", String::toString, TreeSet::new);
 ```
 
 Result: `["hello", "world"]`.
@@ -83,22 +83,23 @@ Result: `["hello", "world"]`.
 
 ```java
 MapStringView view = new StringView("a=0.57;b=6.63;c=72.14").asMapView();
-Map<String, Float> map = view.asMap(";", "=",  String::toString, Float::parseFloat);
+Map<String, Float> map = view.asMap(";", "=",  String::toString, Float::parseFloat, HashMap::new);
 ```
 
 Result: `{a=0.57, b=6.63, c=72.14}`.
 
-### Nested Collections Conversion
+### Nested Map and Collection Conversion
 
 ```java
 String mapData = "list1:1,2,3 list2:4,5,6";
 Map<String, List<Integer>> map = new StringView(mapData)
-    .asMapView()
-    .asMap(" ", ":", 
-        String::toString, 
-        value -> new StringView(value)
-            .asListView()
-            .asIntList(","));
+		.asMapView()
+		.asMap(" ", ":", 
+				String::toString,
+				value -> new StringView(value)
+					.asCollectionView()
+					.asIntegerCollection(",", ArrayList::new), 
+				HashMap::new);
 ```
 
 Result: `{list1=[1, 2, 3], list2=[4, 5, 6]}`.
@@ -145,14 +146,4 @@ String result = new StringView(null)
     .map(str -> str.isEmpty() ? null : str)
     .orElse("fallback")
     .asString();
-```
-
-## Error Handling
-
-- `StringViewException` - for conversion errors:
-
-```java
-try {
-    new StringView("not a number").asInt();
-} catch (StringViewException exception) {}
 ```
