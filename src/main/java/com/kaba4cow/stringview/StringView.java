@@ -39,6 +39,17 @@ public class StringView implements Comparable<StringView>, CharSequence {
 	}
 
 	/**
+	 * Returns a formatted string using this {@link StringView} string and arguments.
+	 * 
+	 * @param args arguments referenced by the format specifiers in the format string
+	 * 
+	 * @return a new {@link StringView} containing the formatted string
+	 */
+	public StringView formatted(Object... args) {
+		return new StringView(String.format(string, args));
+	}
+
+	/**
 	 * Trims the string by removing leading and trailing spaces.
 	 * 
 	 * @return a new {@link StringView} with the trimmed string
