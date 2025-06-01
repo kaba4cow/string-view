@@ -11,6 +11,30 @@
 - **Extensible Design**: Easy to extend with custom string view implementations
 - **Null Safety**: Built-in null handling with **Optional** support
 
+## Installation
+
+Clone and build:
+
+```bash
+git clone https://github.com/kaba4cow/string-view.git
+cd string-view
+mvn clean install
+```
+
+Add to your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>com.kaba4cow</groupId>
+    <artifactId>string-view</artifactId>
+    <version>3.3.0</version>
+</dependency>
+```
+
+Requirements: 
+
+- **Java** version **8** or higher.
+
 ## Usage
 
 ### Basic String Operations
@@ -147,3 +171,7 @@ String result = new StringView(null)
     .orElse("fallback")
     .asString();
 ```
+
+## License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.

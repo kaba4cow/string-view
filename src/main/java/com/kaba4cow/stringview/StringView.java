@@ -212,7 +212,7 @@ public class StringView implements Comparable<StringView>, CharSequence {
 	 * Returns the current {@link StringView} if the internal string is not {@code null}, or a new {@link StringView} with the
 	 * provided alternative value.
 	 * 
-	 * @param value the default string value which will be used if the current string is {@code null}
+	 * @param value the default object which will be used if the current string is {@code null}
 	 * 
 	 * @return current {@link StringView} if string is not {@code null}, or a new {@link StringView} with the provided value
 	 */
@@ -222,14 +222,33 @@ public class StringView implements Comparable<StringView>, CharSequence {
 
 	/**
 	 * Returns the current {@link StringView} if the internal string is not {@code null}, or a new {@link StringView} with an
-	 * alternative value from the supplier.
+	 * alternative value from the {@code valueSupplier}.
 	 * 
-	 * @param value a supplier that provides a fallback string value which will be used if the current string is {@code null}
+	 * @param valueSupplier a supplier that provides a fallback object which will be used if the current string is {@code null}
 	 * 
 	 * @return current {@link StringView} if string is not {@code null}, or a new {@link StringView} with the supplier's result
 	 */
-	public StringView orElseGet(Supplier<? extends Object> value) {
-		return Objects.isNull(string) ? new StringView(value.get()) : this;
+	public StringView orElseGet(Supplier<?> valueSupplier) {
+		return Objects.isNull(string) ? new StringView(valueSupplier.get()) : this;
+	}
+
+	/**
+	 * Returns the current {@link StringView} if the internal string is not {@code null}, otherwise throws an exception created
+	 * by the {@code exceptionSupplier}.
+	 *
+	 * @param <X>               type of the exception to be thrown
+	 * @param exceptionSupplier the supplier which will return the exception to be thrown
+	 * 
+	 * @return current {@link StringView} if string is not {@code null}
+	 * 
+	 * @throws X                    if the internal string is {@code null}
+	 * @throws NullPointerException if the internal string is {@code null} and {@code exceptionSupplier} is null
+	 */
+	public <X extends Throwable> StringView orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
+		if (Objects.isNull(string))
+			throw exceptionSupplier.get();
+		else
+			return this;
 	}
 
 	/**
@@ -239,7 +258,7 @@ public class StringView implements Comparable<StringView>, CharSequence {
 	 * 
 	 * @return a reference to this object with the mapped string
 	 */
-	public StringView map(Function<String, ? extends Object> mapper) {
+	public StringView map(Function<String, ?> mapper) {
 		return new StringView(mapper.apply(string));
 	}
 

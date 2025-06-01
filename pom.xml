@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.kaba4cow</groupId>
 	<artifactId>string-view</artifactId>
-	<version>3.2.0</version>
+	<version>3.3.0</version>
 	<name>String View</name>
 	<description>A string view library for Java</description>
 	<properties>
